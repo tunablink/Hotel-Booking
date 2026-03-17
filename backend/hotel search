@@ -1,0 +1,72 @@
+from fastapi import FastAPI, Query
+from typing import List, Optional
+from datetime import date
+
+app = FastAPI()
+
+hotels = [
+    {
+        "id": 1,
+        "name": "Sunshine Hotel",
+        "location": "Hanoi",
+        "price": 50,
+        "amenities": ["wifi", "pool"],
+        "available_dates": ["2026-03-20", "2026-03-21"]
+    },
+    {
+        "id": 2,
+        "name": "Luxury Stay",
+        "location": "Hanoi",
+        "price": 120,
+        "amenities": ["wifi", "parking"],
+        "available_dates": ["2026-03-20"]
+    },
+    {
+        "id": 3,
+        "name": "Beach Resort",
+        "location": "Da Nang",
+        "price": 200,
+        "amenities": ["wifi", "pool", "parking"],
+        "available_dates": ["2026-03-22"]
+    }
+]
+@app.get("/hotels")
+def search_hotels(
+    location: Optional[str] = None,
+    min_price: Optional[int] = None,
+    max_price: Optional[int] = None,
+    amenities: Optional[List[str]] = Query(None),
+    check_in: Optional[str] = None,
+    check_out: Optional[str] = None
+):
+    results = hotels
+
+    # Filter theo location
+    if location:
+        results = [h for h in results if h["location"].lower() == location.lower()]
+
+    # Filter theo giá
+    if min_price:
+        results = [h for h in results if h["price"] >= min_price]
+
+    if max_price:
+        results = [h for h in results if h["price"] <= max_price]
+
+    #  Filter theo amenities
+    if amenities:
+        results = [
+            h for h in results
+            if all(a in h["amenities"] for a in amenities)
+        ]
+
+    #  Filter theo ngày
+    if check_in and check_out:
+        results = [
+            h for h in results
+            if check_in in h["available_dates"]
+        ]
+
+    return {
+        "count": len(results),
+        "data": results
+    }
