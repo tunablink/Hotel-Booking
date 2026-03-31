@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, Chrome, User, Search, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 
-export default function SignUpPage() {
-  const navigate = useNavigate();
-
+export default function SignUp() {
   // Sign up form state
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,14 +14,18 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
     terms: '',
-    general: ''
+    form: ''
   });
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const validateForm = () => {
     const newErrors = {
@@ -31,7 +34,7 @@ export default function SignUpPage() {
       password: '',
       confirmPassword: '',
       terms: '',
-      general: ''
+      form: ''
     };
 
     // Full name validation
@@ -53,7 +56,7 @@ export default function SignUpPage() {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
-    }
+    } 
 
     // Confirm password validation
     if (!confirmPassword) {
@@ -76,36 +79,45 @@ export default function SignUpPage() {
     e.preventDefault();
     
     if (validateForm()) {
-       try {
-        const formData = {
-          email: email, 
-          password: password,
-          full_name: fullName
-        };
-        
-        // We're mimicking an api register here but realistically you would implement 
-        // a post to your api, like so: await api.post('/auth/register', formData);
-        
-        // After successful registration, you might want to log them in automatically
-        // or redirect to login page. Here we redirect to login page:
-        navigate('/login');
-      } catch (err) {
-        setErrors({ ...errors, general: 'Registration failed. Please try again.' });
+      setIsSubmitting(true);
+      try {
+        await api.post('/auth/register', {
+          email,
+          password,
+          full_name: fullName,
+        });
+
+        // After successful registration, log the user in immediately
+        const res = await api.post('/auth/login', { 
+          username: email, 
+          password 
+        }, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+        login(res.data.user, res.data.access_token);
+        navigate('/');
+      } catch (err: any) {
+        setErrors({
+          ...errors,
+          form: err.response?.data?.detail || 'Failed to register account',
+        });
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row w-full h-full m-[-2rem]">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Side - Image Section */}
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
-        className="w-full lg:w-1/2 relative overflow-hidden min-h-[40vh] lg:h-screen lg:sticky lg:top-0"
+        className="w-full lg:w-1/2 relative overflow-hidden min-h-[40vh] lg:min-h-screen"
       >
         <img
-          src="https://images.unsplash.com/photo-1758778689622-b756560264ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjByZXNvcnQlMjBpbmZpbml0eSUyMHBvb2wlMjBzdW5zZXR8ZW58MXx8fHwxNzczMDMzNjY2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+          src="https://images.unsplash.com/photo-1758778689622-b756560264ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
           alt="Luxury resort infinity pool"
           className="w-full h-full object-cover absolute inset-0"
         />
@@ -114,7 +126,7 @@ export default function SignUpPage() {
         <div className="absolute inset-0 bg-[#0a0e27]/60" />
         
         {/* Content */}
-        <div className="absolute inset-0 flex flex-col justify-center px-8 lg:px-16 py-12">
+        <div className="absolute inset-0 flex flex-col justify-center px-8 lg:px-16 py-12 pt-24">
           {/* Decorative Gold Line */}
           <motion.div
             initial={{ width: 0 }}
@@ -194,27 +206,27 @@ export default function SignUpPage() {
       </motion.div>
 
       {/* Right Side - Sign Up Form */}
-      <div className="w-full lg:w-1/2 bg-[#0a0e27] flex flex-col p-8 lg:p-12 min-h-screen">
+      <div className="w-full lg:w-1/2 bg-[#0a0e27] flex items-center justify-center p-8 lg:p-12 pt-24">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="w-full max-w-md m-auto py-8"
+          className="w-full max-w-md"
         >
           {/* Sign Up Card */}
           <div className="bg-[#151a3d]/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl">
             {/* Logo */}
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-serif text-[#d4af37] mb-2">Hotelify</h2>
+              <h2 className="text-3xl font-serif text-[#d4af37] mb-2 uppercase tracking-wider">Regency Grand</h2>
               <div className="w-12 h-1 bg-[#d4af37] mx-auto" />
             </div>
 
             {/* Title */}
-            <h3 className="text-2xl text-white text-center mb-8">Create Account</h3>
-            
-            {errors.general && (
-              <div className="mb-4 bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-red-500 text-sm text-center">
-                {errors.general}
+            <h3 className="text-2xl text-white text-center mb-6">Create Account</h3>
+
+            {errors.form && (
+              <div className="bg-red-500/10 border border-red-500/50 text-red-500 text-sm p-3 rounded-lg mb-6 text-center">
+                {errors.form}
               </div>
             )}
 
@@ -222,7 +234,7 @@ export default function SignUpPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Full Name Input */}
               <div className="space-y-2">
-                <label htmlFor="fullName" className="block text-white/80 text-sm mb-2">
+                <label htmlFor="fullName" className="text-white/80 text-sm block">
                   Full Name
                 </label>
                 <div className="relative">
@@ -236,8 +248,8 @@ export default function SignUpPage() {
                       setFullName(e.target.value);
                       if (errors.fullName) setErrors({ ...errors, fullName: '' });
                     }}
-                    className={`pl-12 w-full h-14 bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/20 rounded-xl transition-all ${
-                      errors.fullName ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''
+                    className={`w-full pl-12 h-14 bg-white/5 border text-white placeholder:text-white/40 focus:border-[#d4af37] focus:ring-[#d4af37]/20 rounded-xl transition-all outline-none ${
+                      errors.fullName ? 'border-red-500 focus:border-red-500' : 'border-white/10'
                     }`}
                   />
                 </div>
@@ -245,7 +257,7 @@ export default function SignUpPage() {
                   <motion.p
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-sm"
+                    className="text-red-400 text-sm mt-1"
                   >
                     {errors.fullName}
                   </motion.p>
@@ -254,7 +266,7 @@ export default function SignUpPage() {
 
               {/* Email Input */}
               <div className="space-y-2">
-                <label htmlFor="email" className="block text-white/80 text-sm mb-2">
+                <label htmlFor="email" className="text-white/80 text-sm block">
                   Email Address
                 </label>
                 <div className="relative">
@@ -268,8 +280,8 @@ export default function SignUpPage() {
                       setEmail(e.target.value);
                       if (errors.email) setErrors({ ...errors, email: '' });
                     }}
-                    className={`pl-12 w-full h-14 bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/20 rounded-xl transition-all ${
-                      errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''
+                    className={`w-full pl-12 h-14 bg-white/5 border text-white placeholder:text-white/40 focus:border-[#d4af37] focus:ring-[#d4af37]/20 rounded-xl transition-all outline-none ${
+                      errors.email ? 'border-red-500 focus:border-red-500' : 'border-white/10'
                     }`}
                   />
                 </div>
@@ -277,7 +289,7 @@ export default function SignUpPage() {
                   <motion.p
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-sm"
+                    className="text-red-400 text-sm mt-1"
                   >
                     {errors.email}
                   </motion.p>
@@ -286,7 +298,7 @@ export default function SignUpPage() {
 
               {/* Password Input */}
               <div className="space-y-2">
-                <label htmlFor="password" className="block text-white/80 text-sm mb-2">
+                <label htmlFor="password" className="text-white/80 text-sm block">
                   Password
                 </label>
                 <div className="relative">
@@ -300,14 +312,14 @@ export default function SignUpPage() {
                       setPassword(e.target.value);
                       if (errors.password) setErrors({ ...errors, password: '' });
                     }}
-                    className={`pl-12 pr-12 w-full h-14 bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/20 rounded-xl transition-all ${
-                      errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''
+                    className={`w-full pl-12 pr-12 h-14 bg-white/5 border text-white placeholder:text-white/40 focus:border-[#d4af37] focus:ring-[#d4af37]/20 rounded-xl transition-all outline-none ${
+                      errors.password ? 'border-red-500 focus:border-red-500' : 'border-white/10'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]/60 hover:text-[#d4af37] transition-colors focus:outline-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]/60 hover:text-[#d4af37] transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -320,7 +332,7 @@ export default function SignUpPage() {
                   <motion.p
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-sm"
+                    className="text-red-400 text-sm mt-1"
                   >
                     {errors.password}
                   </motion.p>
@@ -329,7 +341,7 @@ export default function SignUpPage() {
 
               {/* Confirm Password Input */}
               <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="block text-white/80 text-sm mb-2">
+                <label htmlFor="confirmPassword" className="text-white/80 text-sm block">
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -343,14 +355,14 @@ export default function SignUpPage() {
                       setConfirmPassword(e.target.value);
                       if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
                     }}
-                    className={`pl-12 pr-12 w-full h-14 bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/20 rounded-xl transition-all ${
-                      errors.confirmPassword ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''
+                    className={`w-full pl-12 pr-12 h-14 bg-white/5 border text-white placeholder:text-white/40 focus:border-[#d4af37] focus:ring-[#d4af37]/20 rounded-xl transition-all outline-none ${
+                      errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-white/10'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]/60 hover:text-[#d4af37] transition-colors focus:outline-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]/60 hover:text-[#d4af37] transition-colors"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -363,7 +375,7 @@ export default function SignUpPage() {
                   <motion.p
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-sm"
+                    className="text-red-400 text-sm mt-1"
                   >
                     {errors.confirmPassword}
                   </motion.p>
@@ -371,8 +383,8 @@ export default function SignUpPage() {
               </div>
 
               {/* Terms & Conditions Checkbox */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
+              <div className="space-y-2 pt-2">
+                <div className="flex items-start gap-3">
                   <input
                     type="checkbox"
                     id="terms"
@@ -381,20 +393,20 @@ export default function SignUpPage() {
                       setAgreeToTerms(e.target.checked);
                       if (errors.terms) setErrors({ ...errors, terms: '' });
                     }}
-                    className={`w-4 h-4 rounded border-white/20 text-[#d4af37] focus:ring-[#d4af37] bg-white/5 cursor-pointer accent-[#d4af37] flex-shrink-0 ${
-                      errors.terms ? 'border-red-500 outline outline-1 outline-red-500' : ''
+                    className={`mt-1 w-4 h-4 rounded border-white/20 bg-white/5 text-[#d4af37] focus:ring-[#d4af37]/50 accent-[#d4af37] cursor-pointer ${
+                      errors.terms ? 'border-red-500' : ''
                     }`}
                   />
                   <label
                     htmlFor="terms"
-                    className="text-white/60 text-sm cursor-pointer hover:text-white/80 transition-colors whitespace-nowrap overflow-hidden text-ellipsis flex items-center gap-1"
+                    className="text-white/60 text-sm cursor-pointer hover:text-white/80 transition-colors leading-relaxed"
                   >
-                    <span>I agree to the</span>
-                    <a href="#" className="text-[#d4af37] hover:text-[#c4a037] transition-colors flex-shrink-0">
-                      Terms
-                    </a>
-                    <span>&</span>
-                    <a href="#" className="text-[#d4af37] hover:text-[#c4a037] transition-colors flex-shrink-0">
+                    I agree to the{' '}
+                    <a href="#" className="text-[#d4af37] hover:text-[#c4a037] transition-colors">
+                      Terms & Conditions
+                    </a>{' '}
+                    and{' '}
+                    <a href="#" className="text-[#d4af37] hover:text-[#c4a037] transition-colors">
                       Privacy Policy
                     </a>
                   </label>
@@ -413,16 +425,17 @@ export default function SignUpPage() {
               {/* Create Account Button */}
               <button
                 type="submit"
-                className="w-full h-14 bg-[#d4af37] text-[#0a0e27] hover:bg-[#c4a037] text-lg font-semibold rounded-xl shadow-lg shadow-[#d4af37]/20 transition-all duration-300 hover:shadow-xl hover:shadow-[#d4af37]/30 hover:scale-[1.02]"
+                disabled={isSubmitting}
+                className="w-full h-14 bg-[#d4af37] text-[#0a0e27] hover:bg-[#c4a037] text-lg font-semibold rounded-xl shadow-lg shadow-[#d4af37]/20 transition-all duration-300 hover:shadow-xl hover:shadow-[#d4af37]/30 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Create Account
+                {isSubmitting ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
 
             {/* Divider */}
             <div className="flex items-center gap-4 my-6">
               <div className="flex-1 h-px bg-white/10" />
-              <span className="text-white/40 text-sm">OR</span>
+              <span className="text-white/40 text-sm uppercase">OR</span>
               <div className="flex-1 h-px bg-white/10" />
             </div>
 
@@ -430,17 +443,17 @@ export default function SignUpPage() {
             <div className="space-y-3">
               <button
                 type="button"
-                className="w-full flex items-center justify-center h-12 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-[#d4af37]/50 rounded-xl transition-all hover:scale-[1.02]"
+                className="w-full flex items-center justify-center font-medium h-12 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-[#d4af37]/50 rounded-xl transition-all hover:scale-[1.02]"
               >
-                <Chrome className="w-5 h-5 mr-2" />
+                <Chrome className="w-5 h-5 mr-3" />
                 Continue with Google
               </button>
               
               <button
                 type="button"
-                className="w-full flex items-center justify-center h-12 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-[#d4af37]/50 rounded-xl transition-all hover:scale-[1.02]"
+                className="w-full flex items-center justify-center font-medium h-12 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-[#d4af37]/50 rounded-xl transition-all hover:scale-[1.02]"
               >
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
                 Continue with Facebook

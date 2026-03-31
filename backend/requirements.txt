@@ -8,4 +8,7 @@ python-jose[cryptography]>=3.3.0
 python-multipart>=0.0.6
 pytest>=7.4.2
 httpx>=0.25.0
-pydantic[email]
+pydantic[email]>=2.0.0
+email-validator>=2.0.0
+pymysql>=1.1.0
+cryptography>=41.0.0
