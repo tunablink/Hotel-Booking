@@ -12,6 +12,7 @@ import HotelDetail from './pages/HotelDetail';
 import BookingSuccess from './pages/BookingSuccess';
 import Checkout from './pages/Checkout';
 import SearchResults from './pages/SearchResults';
+import ResetPassword from './pages/ResetPassword';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -92,6 +93,7 @@ export default function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/hotels/:id" element={<HotelDetail />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route 
             path="/checkout" 
             element={

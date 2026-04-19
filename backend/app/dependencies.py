@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-
+#OAuth2 cho phép bên t3 truy cập tài nguyên ng dùng mà k share mk
 from app.database import get_db
 from app.core import security
 from app.models.user import User, UserRole

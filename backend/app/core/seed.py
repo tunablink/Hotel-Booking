@@ -37,6 +37,8 @@ def seed_data():
                 "location": "Hanoi",
                 "description": "Experience luxury in the heart of Hanoi with stunning views and world-class amenities.",
                 "rating": 4.8,
+                "latitude": 21.0285,
+                "longitude": 105.8542,
                 "rooms": [
                     {"name": "Deluxe Room", "price": 120.0, "cap": 2, "amenities": ["WiFi", "Air Conditioning", "Room Service"]},
                     {"name": "Suite", "price": 250.0, "cap": 3, "amenities": ["WiFi", "Air Conditioning", "Spa", "Room Service"]},
@@ -48,6 +50,8 @@ def seed_data():
                 "location": "Ho Chi Minh City",
                 "description": "A riverside retreat offering modern comforts and breathtaking Saigon River views.",
                 "rating": 4.5,
+                "latitude": 10.7769,
+                "longitude": 106.7009,
                 "rooms": [
                     {"name": "River View Room", "price": 150.0, "cap": 2, "amenities": ["WiFi", "Air Conditioning", "Swimming Pool"]},
                     {"name": "Family Suite", "price": 300.0, "cap": 5, "amenities": ["WiFi", "Air Conditioning", "Swimming Pool", "Gym"]},
@@ -58,6 +62,8 @@ def seed_data():
                 "location": "Da Nang",
                 "description": "Steps away from My Khe Beach, perfect for a seaside holiday.",
                 "rating": 4.6,
+                "latitude": 16.0471,
+                "longitude": 108.2068,
                 "rooms": [
                     {"name": "Ocean View Room", "price": 180.0, "cap": 2, "amenities": ["WiFi", "Air Conditioning", "Beach Access"]},
                     {"name": "Penthouse", "price": 500.0, "cap": 4, "amenities": ["WiFi", "Air Conditioning", "Beach Access", "Spa", "Bar"]},
@@ -68,6 +74,8 @@ def seed_data():
                 "location": "Hoi An",
                 "description": "Charming boutique hotel in the UNESCO World Heritage ancient town.",
                 "rating": 4.7,
+                "latitude": 15.8801,
+                "longitude": 108.3380,
                 "rooms": [
                     {"name": "Heritage Room", "price": 95.0, "cap": 2, "amenities": ["WiFi", "Air Conditioning", "Restaurant"]},
                     {"name": "Garden Villa", "price": 220.0, "cap": 3, "amenities": ["WiFi", "Air Conditioning", "Swimming Pool", "Parking"]},
@@ -78,6 +86,8 @@ def seed_data():
                 "location": "Nha Trang",
                 "description": "Premium beachfront resort overlooking the stunning Nha Trang Bay.",
                 "rating": 4.9,
+                "latitude": 12.2388,
+                "longitude": 109.1967,
                 "rooms": [
                     {"name": "Bay View Room", "price": 200.0, "cap": 2, "amenities": ["WiFi", "Air Conditioning", "Swimming Pool", "Beach Access"]},
                     {"name": "Presidential Suite", "price": 700.0, "cap": 4, "amenities": ["WiFi", "Air Conditioning", "Spa", "Bar", "Room Service", "Beach Access"]},
@@ -93,6 +103,12 @@ def seed_data():
                 location=h_data["location"],
                 description=h_data["description"],
                 rating=h_data["rating"],
+                latitude=h_data["latitude"],
+                longitude=h_data["longitude"],
+                map_embed_url=(
+                    "https://www.google.com/maps?q="
+                    f"{h_data['latitude']},{h_data['longitude']}&output=embed"
+                ),
             )
             db.add(hotel)
             db.commit()

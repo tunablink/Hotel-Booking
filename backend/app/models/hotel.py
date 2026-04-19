@@ -11,6 +11,9 @@ class Hotel(Base):
     location = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     rating = Column(Float, default=0.0)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    map_embed_url = Column(String, nullable=True)
 
     rooms = relationship("Room", back_populates="hotel", cascade="all, delete-orphan")
     photos = relationship("Photo", back_populates="hotel", cascade="all, delete-orphan")

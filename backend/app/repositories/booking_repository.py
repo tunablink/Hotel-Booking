@@ -45,3 +45,4 @@ def get_all_bookings(db: Session):
         .order_by(Booking.id.desc())
         .all()
     )
+#lưu trữ và quản lí phiên bản và tổ chức mã nguồn của dự án

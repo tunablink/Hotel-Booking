@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       try {
-        const response = await api.get('/auth/me');
+        const response = await api.get('/users/me');
         setUser(response.data);
       } catch (error) {
         console.error('Failed to restore session', error);

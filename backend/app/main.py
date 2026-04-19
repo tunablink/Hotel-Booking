@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine, Base
+from app.database import engine, Base, ensure_hotel_map_columns
 from app.api import auth, users, hotels, rooms, bookings, admin
 from app.core.config import settings
 from app.core.seed import seed_data
@@ -12,6 +12,7 @@ import app.models  # noqa: F401 — ensure all models are registered with Base
 async def lifespan(app: FastAPI):
     # Startup: create tables and seed data
     Base.metadata.create_all(bind=engine)
+    ensure_hotel_map_columns()
     seed_data()
     yield
     # Shutdown

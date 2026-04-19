@@ -1,10 +1,19 @@
 import math
 from typing import Optional, List
+from urllib.parse import quote_plus
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import or_
 from app.models.hotel import Hotel
 from app.models.room import Room
 from app.models.photo import Photo
+
+
+def _build_map_embed_url(location: str, latitude: float = None, longitude: float = None):
+    if latitude is not None and longitude is not None:
+        query = f"{latitude},{longitude}"
+    else:
+        query = location
+    return f"https://www.google.com/maps?q={quote_plus(query)}&output=embed"
 
 
 def get_hotels(db: Session):
@@ -71,11 +80,19 @@ def search_hotels(
 
 def create_hotel(db: Session, hotel_data: dict, photo_urls: List[str] = None):
     """Create a hotel with optional photos."""
+    map_embed_url = hotel_data.get("map_embed_url") or _build_map_embed_url(
+        hotel_data["location"],
+        hotel_data.get("latitude"),
+        hotel_data.get("longitude"),
+    )
     hotel = Hotel(
         name=hotel_data["name"],
         location=hotel_data["location"],
         description=hotel_data.get("description"),
         rating=hotel_data.get("rating", 0.0),
+        latitude=hotel_data.get("latitude"),
+        longitude=hotel_data.get("longitude"),
+        map_embed_url=map_embed_url,
     )
     db.add(hotel)
     db.commit()
@@ -84,7 +101,7 @@ def create_hotel(db: Session, hotel_data: dict, photo_urls: List[str] = None):
     # Add photos
     if photo_urls:
         for url in photo_urls:
-            photo = Photo(hotel_id=hotel.id, url=url)
+            photo = Photo(hotel_id=hotel.id, url=str(url))
             db.add(photo)
         db.commit()
         db.refresh(hotel)
@@ -102,6 +119,16 @@ def update_hotel(db: Session, hotel_id: int, update_data: dict, photo_urls: List
         if value is not None:
             setattr(hotel, key, value)
 
+    if (
+        "map_embed_url" not in update_data
+        and {"location", "latitude", "longitude"}.intersection(update_data)
+    ):
+        hotel.map_embed_url = _build_map_embed_url(
+            hotel.location,
+            hotel.latitude,
+            hotel.longitude,
+        )
+
     # Replace photos if provided
     if photo_urls is not None:
         # Delete existing hotel photos
@@ -109,7 +136,7 @@ def update_hotel(db: Session, hotel_id: int, update_data: dict, photo_urls: List
             db.delete(photo)
         # Add new ones
         for url in photo_urls:
-            db.add(Photo(hotel_id=hotel.id, url=url))
+            db.add(Photo(hotel_id=hotel.id, url=str(url)))
 
     db.commit()
     db.refresh(hotel)

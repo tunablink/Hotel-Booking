@@ -25,8 +25,8 @@ def create_hotel(
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
-    """Create a new hotel with optional photos. Requires ADMIN role."""
-    data = hotel_data.model_dump(exclude={"photos"})
+    """Create a new hotel with optional photos and map embed data. Requires ADMIN role."""
+    data = hotel_data.model_dump(mode="json", exclude={"photos"})
     return hotel_service.create_hotel(db, data, photo_urls=hotel_data.photos)
 
 
@@ -42,7 +42,7 @@ def update_hotel(
     admin: User = Depends(require_admin),
 ):
     """Update an existing hotel. Only non-null fields are updated. Requires ADMIN role."""
-    data = hotel_data.model_dump(exclude_unset=True, exclude={"photos"})
+    data = hotel_data.model_dump(mode="json", exclude_unset=True, exclude={"photos"})
     return hotel_service.update_hotel(db, hotel_id, data, photo_urls=hotel_data.photos)
 
 

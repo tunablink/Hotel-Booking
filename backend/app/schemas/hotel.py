@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, HttpUrl
 from typing import List, Optional
 from app.schemas.room import RoomResponse, PhotoResponse
 
@@ -8,10 +8,13 @@ class HotelBase(BaseModel):
     location: str
     description: Optional[str] = None
     rating: float = 0.0
+    latitude: Optional[float] = Field(None, ge=-90, le=90)
+    longitude: Optional[float] = Field(None, ge=-180, le=180)
+    map_embed_url: Optional[HttpUrl] = None
 
 
 class HotelCreate(HotelBase):
-    photos: List[str] = []  # List of photo URLs
+    photos: List[HttpUrl] = Field(default_factory=list)  # List of photo URLs
 
 
 class HotelUpdate(BaseModel):
@@ -19,7 +22,10 @@ class HotelUpdate(BaseModel):
     location: Optional[str] = None
     description: Optional[str] = None
     rating: Optional[float] = None
-    photos: Optional[List[str]] = None  # Replace photos if provided
+    latitude: Optional[float] = Field(None, ge=-90, le=90)
+    longitude: Optional[float] = Field(None, ge=-180, le=180)
+    map_embed_url: Optional[HttpUrl] = None
+    photos: Optional[List[HttpUrl]] = None  # Replace photos if provided
 
 
 class HotelResponse(HotelBase):

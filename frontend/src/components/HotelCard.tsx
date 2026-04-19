@@ -8,14 +8,12 @@ interface Hotel {
   location: string;
   description: string;
   rating: number;
-  // A luxury UI needs photos, even if the backend hotel payload doesn't have a direct top-level image.
-  // We will assume `rooms[0]?.photos[0]?.url` or a placeholder.
+  photos?: any[];
   rooms?: any[];
 }
 
 export default function HotelCard({ hotel }: { hotel: Hotel }) {
-  // Extract a preview image from rooms if available, else a luxury placeholder
-  const imageUrl = hotel.rooms?.[0]?.photos?.[0]?.url || 'https://images.unsplash.com/photo-1542314831-c6a4d14b4ced?auto=format&fit=crop&q=80&w=800';
+  const imageUrl = hotel.photos?.[0]?.url || hotel.rooms?.[0]?.photos?.[0]?.url || 'https://images.unsplash.com/photo-1542314831-c6a4d14b4ced?auto=format&fit=crop&q=80&w=800';
 
   return (
     <Link to={`/hotels/${hotel.id}`} className="block group">

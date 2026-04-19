@@ -186,7 +186,7 @@ export default function Home() {
                   <div className="bg-[#151a3d] border border-white/10 overflow-hidden group hover:border-[#d4af37]/50 transition-all duration-500 rounded-xl h-full flex flex-col shadow-xl">
                     <div className="relative h-64 overflow-hidden">
                       <img
-                        src={hotel.rooms?.[0]?.photos?.[0]?.url || 'https://images.unsplash.com/photo-1759223198981-661cadbbff36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'}
+                        src={hotel.photos?.[0]?.url || hotel.rooms?.[0]?.photos?.[0]?.url || 'https://images.unsplash.com/photo-1759223198981-661cadbbff36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'}
                         alt={hotel.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />

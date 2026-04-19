@@ -27,7 +27,7 @@ export default function Register() {
       const loginRes = await api.post('/auth/login', { email, password });
       const { access_token } = loginRes.data;
       
-      const userRes = await api.get('/auth/me', {
+      const userRes = await api.get('/users/me', {
         headers: { Authorization: `Bearer ${access_token}` }
       });
       

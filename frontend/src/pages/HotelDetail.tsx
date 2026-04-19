@@ -108,11 +108,17 @@ export default function HotelDetail() {
   }
 
   // Derived data
-  const galleryImages = hotel.rooms?.flatMap((r: any) => r.photos?.map((p: any) => p.url)).filter(Boolean) || [];
+  const hotelImages = hotel.photos?.map((p: any) => p.url).filter(Boolean) || [];
+  const roomImages = hotel.rooms?.flatMap((r: any) => r.photos?.map((p: any) => p.url)).filter(Boolean) || [];
+  const galleryImages = Array.from(new Set([...hotelImages, ...roomImages]));
   if (galleryImages.length === 0) {
     galleryImages.push('https://images.unsplash.com/photo-1762421028657-347de51e7707?q=80&w=2000');
     galleryImages.push('https://images.unsplash.com/photo-1738407283641-5e127f36f47d?q=80&w=2000');
   }
+  const mapQuery = hotel.latitude != null && hotel.longitude != null
+    ? `${hotel.latitude},${hotel.longitude}`
+    : hotel.location;
+  const mapEmbedUrl = hotel.map_embed_url || `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
 
   const reviews = [
     {
@@ -306,13 +312,14 @@ export default function HotelDetail() {
                 <p className="text-white/60 text-sm font-light">Perfectly located with easy access to main attractions, world-class shopping, and local dining favorites.</p>
               </div>
               <div className="relative h-96 bg-[#0a0e27]/60 rounded-xl overflow-hidden border border-white/10 shadow-inner">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="w-16 h-16 text-[#d4af37] mx-auto mb-4 drop-shadow-lg" />
-                    <p className="text-white/60 font-medium">Interactive map view</p>
-                    <p className="text-[#d4af37]/70 text-sm mt-2">{hotel.location}</p>
-                  </div>
-                </div>
+                <iframe
+                  title={`${hotel.name} map`}
+                  src={mapEmbedUrl}
+                  className="absolute inset-0 h-full w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
               </div>
             </motion.div>
 

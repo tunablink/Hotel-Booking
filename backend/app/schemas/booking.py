@@ -23,3 +23,4 @@ class BookingResponse(BookingBase):
 
     class Config:
         from_attributes = True
+#định nghĩa cấu trúc dữ liệụ 
