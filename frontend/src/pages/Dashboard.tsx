@@ -474,7 +474,7 @@ export default function Dashboard() {
       {/* Footer */}
       <footer id="contact" className="bg-[#0a0e27] border-t border-white/10 py-16 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div>
               <h3 className="text-2xl font-serif text-white mb-4">
                 <span className="text-[#d4af37]">REGENCY</span> GRAND
@@ -496,44 +496,28 @@ export default function Dashboard() {
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                {['About Us', 'Rooms & Suites', 'Special Offers', 'Gallery', 'Careers'].map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-white/60 hover:text-[#d4af37] transition-colors">
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <h4 className="text-white font-serif text-xl mb-4">About Us</h4>
+              <p className="text-white/60 leading-relaxed mb-4">
+                We are a modern hotel booking platform that helps travelers easily find and book the perfect stay. With smart search, verified reviews, and secure payments, we make the booking process fast, simple, and reliable.
+              </p>
+              <p className="text-white/60 leading-relaxed">
+                Our goal is to provide a seamless experience so you can focus on enjoying your journey, not worrying about where to stay.
+              </p>
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4">Services</h4>
-              <ul className="space-y-2">
-                {['Spa & Wellness', 'Fine Dining', 'Event Venues', 'Concierge', 'Airport Transfer'].map((service) => (
-                  <li key={service}>
-                    <a href="#" className="text-white/60 hover:text-[#d4af37] transition-colors">
-                      {service}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-semibold mb-4">Contact Us</h4>
-              <ul className="space-y-3">
-                <li className="flex items-center gap-2 text-white/60">
-                  <Phone className="w-4 h-4 text-[#d4af37]" />
+              <h4 className="text-white font-semibold mb-4 text-lg">Contact Us</h4>
+              <ul className="space-y-4">
+                <li className="flex items-center gap-3 text-white/60">
+                  <Phone className="w-5 h-5 text-[#d4af37]" />
                   +1 (555) 123-4567
                 </li>
-                <li className="flex items-center gap-2 text-white/60">
-                  <Mail className="w-4 h-4 text-[#d4af37]" />
+                <li className="flex items-center gap-3 text-white/60">
+                  <Mail className="w-5 h-5 text-[#d4af37]" />
                   reservations@regencygrand.com
                 </li>
-                <li className="flex items-start gap-2 text-white/60">
-                  <MapPin className="w-4 h-4 text-[#d4af37] mt-1" />
+                <li className="flex items-start gap-3 text-white/60">
+                  <MapPin className="w-5 h-5 text-[#d4af37] mt-1 shrink-0" />
                   <span>123 Luxury Avenue<br />Metropolitan City, 10001</span>
                 </li>
               </ul>

@@ -50,13 +50,11 @@ export default function Login() {
     if (!hasError) {
       setIsSubmitting(true);
       try {
-        const res = await api.post('/auth/login', { 
-          username: email, 
-          password 
-        }, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        const res = await api.post('/auth/login/json', {
+          email,
+          password,
         });
-        login(res.data.user, res.data.access_token);
+        login(res.data.access_token, res.data.user);
         navigate('/');
       } catch (err: any) {
         setErrors({ ...newErrors, form: err.response?.data?.detail || 'Invalid email or password' });

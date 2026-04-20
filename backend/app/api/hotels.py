@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import List, Optional
 from app.database import get_db
 from app.schemas.hotel import HotelResponse, PaginatedHotelResponse
-from app.services import hotel_service
+from app.schemas.review import ReviewCreate, ReviewResponse
+from app.services import hotel_service, review_service
+from app.api.deps import get_current_user
+from app.models.user import User
 
 router = APIRouter(prefix="/hotels", tags=["Hotels"])
 
@@ -52,3 +55,29 @@ def get_hotel(hotel_id: int, db: Session = Depends(get_db)):
     Uses `joinedload` to optimize queries and avoid N+1.
     """
     return hotel_service.get_hotel_details(db, hotel_id)
+
+
+@router.get(
+    "/{hotel_id}/reviews",
+    response_model=List[ReviewResponse],
+    summary="Get guest reviews for a hotel",
+)
+def get_hotel_reviews(hotel_id: int, db: Session = Depends(get_db)):
+    """Return all guest reviews for a hotel, newest first."""
+    return review_service.get_hotel_reviews(db, hotel_id)
+
+
+@router.post(
+    "/{hotel_id}/reviews",
+    response_model=ReviewResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a guest review for a hotel",
+)
+def create_hotel_review(
+    hotel_id: int,
+    review_data: ReviewCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Create a review from the currently authenticated user."""
+    return review_service.create_hotel_review(db, hotel_id, review_data, current_user)

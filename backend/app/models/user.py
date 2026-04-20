@@ -19,3 +19,4 @@ class User(Base):
     role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
 
     bookings = relationship("Booking", back_populates="user", cascade="all, delete-orphan")
+    reviews = relationship("Review", back_populates="user", cascade="all, delete-orphan")

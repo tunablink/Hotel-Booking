@@ -518,7 +518,7 @@ export default function Home() {
       {/* Footer */}
       <footer id="contact" className="bg-[#0a0e27] border-t border-white/10 py-16 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div>
               <h3 className="text-2xl font-serif text-white mb-4">
                 <span className="text-[#d4af37]">REGENCY</span> GRAND
@@ -540,29 +540,13 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4 text-lg">Quick Links</h4>
-              <ul className="space-y-3">
-                {['About Us', 'Rooms & Suites', 'Special Offers', 'Gallery', 'Careers'].map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-white/60 hover:text-[#d4af37] transition-colors">
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-semibold mb-4 text-lg">Services</h4>
-              <ul className="space-y-3">
-                {['Spa & Wellness', 'Fine Dining', 'Event Venues', 'Concierge', 'Airport Transfer'].map((service) => (
-                  <li key={service}>
-                    <a href="#" className="text-white/60 hover:text-[#d4af37] transition-colors">
-                      {service}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <h4 className="text-white font-serif text-xl mb-4">About Us</h4>
+              <p className="text-white/60 leading-relaxed mb-4">
+                We are a modern hotel booking platform that helps travelers easily find and book the perfect stay. With smart search, verified reviews, and secure payments, we make the booking process fast, simple, and reliable.
+              </p>
+              <p className="text-white/60 leading-relaxed">
+                Our goal is to provide a seamless experience so you can focus on enjoying your journey, not worrying about where to stay.
+              </p>
             </div>
 
             <div>

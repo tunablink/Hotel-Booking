@@ -17,3 +17,4 @@ class Hotel(Base):
 
     rooms = relationship("Room", back_populates="hotel", cascade="all, delete-orphan")
     photos = relationship("Photo", back_populates="hotel", cascade="all, delete-orphan")
+    reviews = relationship("Review", back_populates="hotel", cascade="all, delete-orphan")

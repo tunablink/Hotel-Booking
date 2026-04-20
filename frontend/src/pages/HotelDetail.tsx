@@ -2,40 +2,68 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  MapPin, Star, ChevronDown, ChevronUp, Wifi, Waves, Dumbbell,
+  MapPin, Star, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Wifi, Waves, Dumbbell,
   UtensilsCrossed, Car, Wind, Coffee, Shield, Clock, Sparkles, AlertCircle
 } from 'lucide-react';
 import api from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 
 // --- INLINE COMPONENTS ---
 
-const ReviewCard = ({ avatar, name, rating, date, review }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    className="bg-[#151a3d]/40 backdrop-blur-xl border border-white/10 p-6 rounded-2xl"
-  >
-    <div className="flex items-start justify-between mb-4">
-      <div className="flex items-center gap-4">
-        <img src={avatar} alt={name} className="w-12 h-12 rounded-full object-cover" />
-        <div>
-          <h4 className="text-white font-medium">{name}</h4>
-          <p className="text-white/60 text-sm">{date}</p>
+const getInitials = (name: string) => {
+  const parts = name.trim().split(/\s+/);
+  return parts.slice(0, 2).map((part) => part[0]?.toUpperCase()).join('') || 'G';
+};
+
+const formatReviewDate = (date: string) => {
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) return date;
+  return new Intl.DateTimeFormat('en', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(parsedDate);
+};
+
+const ReviewCard = ({ avatar, name, rating, date, review }: any) => {
+  const safeRating = Number(rating) || 0;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="bg-[#151a3d]/40 backdrop-blur-xl border border-white/10 p-6 rounded-lg"
+    >
+      <div className="flex items-start justify-between mb-4 gap-4">
+        <div className="flex items-center gap-4">
+          {avatar ? (
+            <img src={avatar} alt={name} className="w-12 h-12 rounded-full object-cover" />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/30 text-[#d4af37] flex items-center justify-center font-semibold">
+              {getInitials(name)}
+            </div>
+          )}
+          <div>
+            <h4 className="text-white font-medium">{name}</h4>
+            <p className="text-white/60 text-sm">{date}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1 bg-[#d4af37]/10 px-2 py-1 rounded-lg shrink-0">
+          <Star className="w-4 h-4 fill-[#d4af37] text-[#d4af37]" />
+          <span className="text-[#d4af37] text-sm font-semibold">{safeRating.toFixed(1)}</span>
         </div>
       </div>
-      <div className="flex items-center gap-1 bg-[#d4af37]/10 px-2 py-1 rounded-lg">
-        <Star className="w-4 h-4 fill-[#d4af37] text-[#d4af37]" />
-        <span className="text-[#d4af37] text-sm font-semibold">{rating.toFixed(1)}</span>
-      </div>
-    </div>
-    <p className="text-white/80 leading-relaxed italic">"{review}"</p>
-  </motion.div>
-);
+      <p className="text-white/80 leading-relaxed italic">"{review}"</p>
+    </motion.div>
+  );
+};
 
-const RoomCard = ({ room, onSelect }: any) => {
+const RoomCard = ({ room, onSelect, isSelected }: any) => {
   return (
-    <div className="bg-[#151a3d]/40 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:border-[#d4af37]/30 transition-all flex flex-col md:flex-row">
+    <div className={`bg-[#151a3d]/40 backdrop-blur-xl border rounded-2xl overflow-hidden transition-all flex flex-col md:flex-row ${
+      isSelected ? 'border-[#d4af37] shadow-lg shadow-[#d4af37]/15' : 'border-white/10 hover:border-[#d4af37]/30'
+    }`}>
       <div className="w-full md:w-2/5 h-48 md:h-auto relative">
         <img 
           src={room.photos?.[0]?.url || 'https://images.unsplash.com/photo-1509647924673-bbb53e22eeb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'}
@@ -66,10 +94,15 @@ const RoomCard = ({ room, onSelect }: any) => {
           ))}
         </div>
         <button 
+          type="button"
           onClick={() => onSelect(room)}
-          className="mt-auto w-full bg-transparent border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-[#0a0e27] py-2 rounded-lg font-medium transition-colors"
+          className={`mt-auto w-full border border-[#d4af37] py-2 rounded-lg font-medium transition-colors ${
+            isSelected
+              ? 'bg-[#d4af37] text-[#0a0e27]'
+              : 'bg-transparent text-[#d4af37] hover:bg-[#d4af37] hover:text-[#0a0e27]'
+          }`}
         >
-          Select Room
+          {isSelected ? 'Selected Room' : 'Select Room'}
         </button>
       </div>
     </div>
@@ -81,9 +114,18 @@ const RoomCard = ({ room, onSelect }: any) => {
 export default function HotelDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [hotel, setHotel] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewError, setReviewError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   
   // Booking Form State
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
@@ -94,10 +136,31 @@ export default function HotelDetail() {
   const [isBooking, setIsBooking] = useState(false);
 
   useEffect(() => {
-    api.get(`/hotels/${id}`)
-      .then(res => setHotel(res.data))
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
+    const fetchHotelData = async () => {
+      setLoading(true);
+      setReviewsLoading(true);
+      try {
+        const hotelResponse = await api.get(`/hotels/${id}`);
+        setHotel(hotelResponse.data);
+        setCurrentPhotoIndex(0);
+
+        try {
+          const reviewsResponse = await api.get(`/hotels/${id}/reviews`);
+          setReviews(reviewsResponse.data);
+        } catch (reviewsError) {
+          console.error(reviewsError);
+          setReviews([]);
+        }
+      } catch (err) {
+        console.error(err);
+        setHotel(null);
+      } finally {
+        setLoading(false);
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchHotelData();
   }, [id]);
 
   if (loading) {
@@ -115,27 +178,26 @@ export default function HotelDetail() {
     galleryImages.push('https://images.unsplash.com/photo-1762421028657-347de51e7707?q=80&w=2000');
     galleryImages.push('https://images.unsplash.com/photo-1738407283641-5e127f36f47d?q=80&w=2000');
   }
+  const activePhoto = galleryImages[currentPhotoIndex] || galleryImages[0];
+  const hasMultiplePhotos = galleryImages.length > 1;
+  const goToPreviousPhoto = () => {
+    setCurrentPhotoIndex((index) => (index === 0 ? galleryImages.length - 1 : index - 1));
+  };
+  const goToNextPhoto = () => {
+    setCurrentPhotoIndex((index) => (index + 1) % galleryImages.length);
+  };
   const mapQuery = hotel.latitude != null && hotel.longitude != null
     ? `${hotel.latitude},${hotel.longitude}`
     : hotel.location;
   const mapEmbedUrl = hotel.map_embed_url || `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
 
-  const reviews = [
-    {
-      avatar: 'https://images.unsplash.com/photo-1770364019396-36ae51854520?crop=entropy&cs=tinysrgb&fit=facearea&facepad=2&w=256&h=256&q=80',
-      name: 'Sarah Johnson',
-      rating: 5.0,
-      date: 'March 10, 2026',
-      review: 'An absolutely stunning hotel with impeccable service. The rooms are spacious and luxurious, and the staff went above and beyond to make our stay memorable.'
-    },
-    {
-      avatar: 'https://images.unsplash.com/photo-1605298046196-e205d0d699d7?crop=entropy&cs=tinysrgb&fit=facearea&facepad=2&w=256&h=256&q=80',
-      name: 'Michael Chen',
-      rating: 4.8,
-      date: 'March 5, 2026',
-      review: 'Perfect location in the heart of the city. The concierge service was excellent and helped us plan our entire trip. Will definitely return!'
-    }
-  ];
+  const hasReviews = reviews.length > 0;
+  const averageReviewRating = hasReviews
+    ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length
+    : 0;
+  const displayRating = averageReviewRating.toFixed(1);
+  const canReview = Boolean(user?.id);
+  const reviewUserName = user?.full_name || user?.email || 'Guest';
 
   const amenities = [
     { icon: Wifi, name: 'Free WiFi' },
@@ -150,6 +212,11 @@ export default function HotelDetail() {
   const fullDescription = `${shortDescription} Our hotel combines timeless elegance with modern amenities, offering guests an unforgettable stay. Each of our meticulously designed rooms and suites features premium furnishings, marble bathrooms, and panoramic city views. Indulge in world-class dining at our Michelin-starred restaurant, rejuvenate at our award-winning spa, or take a refreshing dip in our rooftop infinity pool.`;
 
   // Booking Logic
+  const handleRoomSelect = (room: any) => {
+    setSelectedRoom(room);
+    setBookingError('');
+  };
+
   const handleBooking = () => {
     if (!selectedRoom) {
       setBookingError('Please select a room first.');
@@ -183,6 +250,53 @@ export default function HotelDetail() {
     });
   };
 
+  const handleReviewSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setReviewError('');
+    setReviewSuccess('');
+
+    if (!canReview) {
+      setReviewError('Please log in before leaving a review.');
+      return;
+    }
+
+    if (!reviewComment.trim()) {
+      setReviewError('Please write a short comment about your stay.');
+      return;
+    }
+
+    try {
+      setIsSubmittingReview(true);
+      const response = await api.post(`/hotels/${id}/reviews`, {
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+      });
+
+      const nextReviews = [response.data, ...reviews];
+      const nextAverage = nextReviews.reduce(
+        (sum, review) => sum + Number(review.rating || 0),
+        0
+      ) / nextReviews.length;
+
+      setReviews(nextReviews);
+      setHotel((currentHotel: any) => ({
+        ...currentHotel,
+        rating: Number(nextAverage.toFixed(1)),
+      }));
+      setReviewRating(5);
+      setReviewComment('');
+      setReviewSuccess('Thanks for sharing your review.');
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        setReviewError('Please log in again before leaving a review.');
+      } else {
+        setReviewError(error.response?.data?.detail || 'Could not submit your review. Please try again.');
+      }
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
   // Calculate pricing
   let totalDays = 0;
   let totalPrice = 0;
@@ -197,20 +311,44 @@ export default function HotelDetail() {
 
   return (
     <div className="bg-[#0a0e27] min-h-screen">
-      {/* Image Gallery Section using Native Flex Scroll */}
-      <div className="relative group">
-        <div className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar h-[500px] md:h-[600px] w-full">
-          {galleryImages.map((image: string, index: number) => (
-            <div key={index} className="relative min-w-full h-full snap-start">
-              <img src={image} alt={`${hotel.name} view ${index + 1}`} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e27] via-transparent to-transparent" />
-            </div>
-          ))}
+      {/* Image Gallery Section */}
+      <div className="relative h-[500px] md:h-[600px] w-full overflow-hidden group">
+        <img
+          key={activePhoto}
+          src={activePhoto}
+          alt={`${hotel.name} view ${currentPhotoIndex + 1}`}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e27] via-transparent to-transparent" />
+
+        {hasMultiplePhotos && (
+          <>
+            <button
+              type="button"
+              onClick={goToPreviousPhoto}
+              aria-label="Previous photo"
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-lg bg-[#0a0e27]/55 hover:bg-[#0a0e27]/80 border border-white/20 text-white backdrop-blur-md flex items-center justify-center transition-all duration-300"
+            >
+              <ChevronLeft className="w-7 h-7" />
+            </button>
+            <button
+              type="button"
+              onClick={goToNextPhoto}
+              aria-label="Next photo"
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-lg bg-[#0a0e27]/55 hover:bg-[#0a0e27]/80 border border-white/20 text-white backdrop-blur-md flex items-center justify-center transition-all duration-300"
+            >
+              <ChevronRight className="w-7 h-7" />
+            </button>
+          </>
+        )}
+
+        <div className="absolute bottom-8 left-4 md:left-1/2 md:-translate-x-1/2 bg-[#0a0e27]/55 backdrop-blur-md text-white px-4 py-2 rounded-lg border border-white/20 text-sm">
+          {currentPhotoIndex + 1} / {galleryImages.length}
         </div>
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute bottom-8 right-8 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white px-6 py-3 rounded-xl border border-white/20 transition-all duration-300"
+          className="absolute bottom-8 right-4 md:right-8 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white px-6 py-3 rounded-lg border border-white/20 transition-all duration-300"
         >
           View all {galleryImages.length} photos
         </motion.button>
@@ -228,9 +366,16 @@ export default function HotelDetail() {
               <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">{hotel.name}</h1>
               
               <div className="flex items-center gap-2 mb-4">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-[#d4af37] text-[#d4af37]" />)}
-                <span className="text-[#d4af37] ml-2">{hotel.rating.toFixed(1)}</span>
-                <span className="text-white/60">({reviews.length} reviews)</span>
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-5 h-5 ${i < Math.round(averageReviewRating) ? 'fill-[#d4af37] text-[#d4af37]' : 'text-white/30'}`}
+                  />
+                ))}
+                <span className="text-[#d4af37] ml-2">{displayRating}</span>
+                <span className="text-white/60">
+                  {hasReviews ? `(${reviews.length} reviews)` : '(No reviews yet)'}
+                </span>
               </div>
 
               <div className="flex items-center gap-2 text-white/80 mb-6 font-light">
@@ -282,7 +427,12 @@ export default function HotelDetail() {
               <div className="space-y-6">
                 {hotel.rooms?.length > 0 ? (
                   hotel.rooms.map((room: any) => (
-                    <RoomCard key={room.id} room={room} onSelect={(r: any) => { setSelectedRoom(r); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+                    <RoomCard
+                      key={room.id}
+                      room={room}
+                      onSelect={handleRoomSelect}
+                      isSelected={selectedRoom?.id === room.id}
+                    />
                   ))
                 ) : (
                   <p className="text-white/60">No rooms currently available.</p>
@@ -296,11 +446,90 @@ export default function HotelDetail() {
                 <h2 className="text-3xl font-serif text-white">Guest Reviews</h2>
                 <div className="flex items-center gap-2 bg-[#d4af37]/20 px-4 py-2 rounded-full">
                   <Star className="w-5 h-5 fill-[#d4af37] text-[#d4af37]" />
-                  <span className="text-[#d4af37] font-semibold">4.9 / 5.0</span>
+                  <span className="text-[#d4af37] font-semibold">
+                    {hasReviews ? `${displayRating} / 5.0` : 'No reviews yet'}
+                  </span>
                 </div>
               </div>
+
+              <form onSubmit={handleReviewSubmit} className="bg-[#151a3d]/40 backdrop-blur-xl border border-white/10 rounded-lg p-6 mb-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                  <div>
+                    <h3 className="text-xl font-serif text-white">Share your stay</h3>
+                    <p className="text-white/60 text-sm">
+                      {canReview ? `Posting as ${reviewUserName}` : 'Log in to add your rating and comment.'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1" aria-label="Select rating">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        className="p-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37]/60"
+                        aria-label={`${star} star${star > 1 ? 's' : ''}`}
+                      >
+                        <Star
+                          className={`w-7 h-7 transition-colors ${
+                            star <= reviewRating
+                              ? 'fill-[#d4af37] text-[#d4af37]'
+                              : 'text-white/30 hover:text-[#d4af37]/70'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <textarea
+                  value={reviewComment}
+                  onChange={(event) => setReviewComment(event.target.value)}
+                  placeholder="Tell future guests what stood out..."
+                  rows={4}
+                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-[#d4af37] resize-none"
+                  maxLength={1000}
+                />
+
+                {reviewError && (
+                  <p className="mt-3 text-sm text-red-400">{reviewError}</p>
+                )}
+                {reviewSuccess && (
+                  <p className="mt-3 text-sm text-emerald-400">{reviewSuccess}</p>
+                )}
+
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <span className="text-white/40 text-xs">{reviewComment.length}/1000 characters</span>
+                  <button
+                    type={canReview ? 'submit' : 'button'}
+                    onClick={!canReview ? () => navigate('/login') : undefined}
+                    disabled={isSubmittingReview}
+                    className="bg-[#d4af37] text-[#0a0e27] hover:bg-[#c4a037] px-5 h-11 rounded-lg font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isSubmittingReview ? 'Submitting...' : canReview ? 'Submit Review' : 'Log In to Review'}
+                  </button>
+                </div>
+              </form>
+
               <div className="grid md:grid-cols-2 gap-6">
-                {reviews.map((review, index) => <ReviewCard key={index} {...review} />)}
+                {reviewsLoading ? (
+                  <div className="md:col-span-2 bg-[#151a3d]/40 border border-white/10 rounded-lg p-6 text-white/60">
+                    Loading guest reviews...
+                  </div>
+                ) : reviews.length > 0 ? (
+                  reviews.map((review) => (
+                    <ReviewCard
+                      key={review.id}
+                      name={review.user_name}
+                      rating={review.rating}
+                      date={formatReviewDate(review.created_at)}
+                      review={review.comment}
+                    />
+                  ))
+                ) : (
+                  <div className="md:col-span-2 bg-[#151a3d]/40 border border-white/10 rounded-lg p-6 text-white/60">
+                    No guest reviews yet. Be the first to share your stay.
+                  </div>
+                )}
               </div>
             </motion.div>
 
@@ -356,7 +585,7 @@ export default function HotelDetail() {
                 <div className="bg-[#0a0e27]/50 rounded-xl p-4 mb-6 border border-[#d4af37]/20">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-white font-medium">{selectedRoom.name}</span>
-                    <button onClick={() => setSelectedRoom(null)} className="text-[#d4af37] text-xs underline">Change</button>
+                    <button type="button" onClick={() => setSelectedRoom(null)} className="text-[#d4af37] text-xs underline">Change</button>
                   </div>
                   <div className="flex justify-between items-center text-sm mb-4">
                     <span className="text-white/60">${selectedRoom.price_per_night} x {totalDays || 1} nights</span>
@@ -375,6 +604,7 @@ export default function HotelDetail() {
               )}
 
               <button 
+                type="button"
                 onClick={handleBooking}
                 disabled={isBooking}
                 className="w-full bg-[#d4af37] text-[#0a0e27] hover:bg-[#c4a037] h-14 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-[#d4af37]/20 hover:shadow-[#d4af37]/40 disabled:opacity-70 disabled:cursor-not-allowed"
