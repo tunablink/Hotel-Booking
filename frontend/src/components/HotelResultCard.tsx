@@ -2,7 +2,7 @@ import { MapPin, Star, Wifi, Waves, Car, Coffee } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import React from 'react';
+import type { ReactNode } from 'react';
 
 interface HotelResultCardProps {
   image: string;
@@ -34,7 +34,7 @@ export function HotelResultCard({
   breakfastIncluded,
 }: HotelResultCardProps) {
   const getAmenityIcon = (amenity: string) => {
-    const iconMap: { [key: string]: React.ReactNode } = {
+    const iconMap: { [key: string]: ReactNode } = {
       wifi: <Wifi className="w-4 h-4" />,
       pool: <Waves className="w-4 h-4" />,
       parking: <Car className="w-4 h-4" />,

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate, Navigate, Link } from 'react-router-dom';
+import { Fragment, useState, type ChangeEvent } from 'react';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ChevronLeft, CreditCard, Shield, Lock, MapPin, Calendar,
@@ -46,14 +46,14 @@ export default function Checkout() {
   const { hotel, selectedRoom, checkIn, checkOut, guests, totalDays, totalPrice } = state;
 
   // Format card number with spaces
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCardNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 16);
     const formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
     setCardNumber(formatted);
   };
 
   // Format expiry as MM/YY
-  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExpiryChange = (e: ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '').slice(0, 4);
     if (value.length >= 2) {
       value = value.slice(0, 2) + '/' + value.slice(2);
@@ -150,7 +150,7 @@ export default function Checkout() {
             { step: 2, label: 'Payment', done: false, active: true },
             { step: 3, label: 'Confirmation', done: false },
           ].map((s, i) => (
-            <React.Fragment key={s.step}>
+            <Fragment key={s.step}>
               {i > 0 && (
                 <div className={`hidden sm:block w-16 h-px ${s.done ? 'bg-[#d4af37]' : 'bg-white/10'}`} />
               )}
@@ -164,7 +164,7 @@ export default function Checkout() {
                   {s.label}
                 </span>
               </div>
-            </React.Fragment>
+            </Fragment>
           ))}
         </div>
 

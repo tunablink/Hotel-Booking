@@ -106,13 +106,6 @@ function formatDate(iso: string) {
 
 // ─── Amenity Icon Component ───────────────────────────────────────────────────
 
-function AmenityIcon({ key: k }: { key: string }) {
-  const opt = AMENITY_OPTIONS.find((o) => o.key === k);
-  if (!opt) return null;
-  const Icon = opt.icon;
-  return <Icon className="w-4 h-4" />;
-}
-
 // ─── Hotel Result Card ────────────────────────────────────────────────────────
 
 function HotelCard({ hotel, index }: { hotel: Hotel; index: number }) {

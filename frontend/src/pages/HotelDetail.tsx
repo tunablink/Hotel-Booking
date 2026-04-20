@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   MapPin, Star, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Wifi, Waves, Dumbbell,
-  UtensilsCrossed, Car, Wind, Coffee, Shield, Clock, Sparkles, AlertCircle
+  UtensilsCrossed, Car, Sparkles, AlertCircle
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -133,7 +133,7 @@ export default function HotelDetail() {
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState('2');
   const [bookingError, setBookingError] = useState('');
-  const [isBooking, setIsBooking] = useState(false);
+  const [isBooking] = useState(false);
 
   useEffect(() => {
     const fetchHotelData = async () => {
@@ -250,7 +250,7 @@ export default function HotelDetail() {
     });
   };
 
-  const handleReviewSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleReviewSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setReviewError('');
     setReviewSuccess('');

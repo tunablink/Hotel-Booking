@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -33,7 +33,7 @@ export default function CheckoutModal({ room, onClose }: CheckoutModalProps) {
     return (nights * room.price_per_night).toFixed(2);
   };
 
-  const handleBooking = async (e: React.FormEvent) => {
+  const handleBooking = async (e: FormEvent) => {
     e.preventDefault();
     if (!user) {
       // Force them to login to book

@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { motion } from 'framer-motion';
@@ -7,21 +7,20 @@ import { motion } from 'framer-motion';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
-import Register from './pages/Register';
 import HotelDetail from './pages/HotelDetail';
 import BookingSuccess from './pages/BookingSuccess';
 import Checkout from './pages/Checkout';
 import SearchResults from './pages/SearchResults';
 import ResetPassword from './pages/ResetPassword';
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen grid place-items-center text-gold-500">Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = ({ children }: { children: ReactNode }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const isHome = location.pathname === '/';
