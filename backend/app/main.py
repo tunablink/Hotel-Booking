@@ -5,17 +5,15 @@ from app.database import engine, Base, ensure_hotel_map_columns
 from app.api import auth, users, hotels, rooms, bookings, admin
 from app.core.config import settings
 from app.core.seed import seed_data
-import app.models  # noqa: F401 — ensure all models are registered with Base
+import app.models  # noqa: F401
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: create tables and seed data
     Base.metadata.create_all(bind=engine)
     ensure_hotel_map_columns()
     seed_data()
     yield
-    # Shutdown
 
 
 app = FastAPI(
@@ -25,45 +23,34 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-cors_origins = [
-    origin.strip()
-    for origin in settings.CORS_ORIGINS.split(",")
-    if origin.strip()
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+# ===== CHỈ MỘT CORS MIDDLEWARE DUY NHẤT =====
 cors_origins = [
     "https://hotel-booking-ochre-chi.vercel.app",
+    "https://hotel-booking-iukmavsq8-tunablinks-projects.vercel.app",  # Thêm domain mới này
     "http://localhost:5173",
     "http://localhost:3000"
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,  # Hardcode trực tiếp
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
-    expose_headers=["*"],  # Thêm dòng này
+    expose_headers=["*"],
+    max_age=3600,
 )
+# ===== HẾT CORS CONFIG =====
 
-# ─── Register all API routers under /api prefix ─────────────────
-app.include_router(auth.router,     prefix="/api")
-app.include_router(users.router,    prefix="/api")
-app.include_router(hotels.router,   prefix="/api")
-app.include_router(rooms.router,    prefix="/api")
+# Routes
+app.include_router(auth.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
+app.include_router(hotels.router, prefix="/api")
+app.include_router(rooms.router, prefix="/api")
 app.include_router(bookings.router, prefix="/api")
-app.include_router(admin.router,    prefix="/api")
+app.include_router(admin.router, prefix="/api")
 
 
-# ─── Health & Root ───────────────────────────────────────────────
 @app.get("/api/health", tags=["Health"])
 def health_check():
     return {"status": "ok", "message": "Service is healthy"}
