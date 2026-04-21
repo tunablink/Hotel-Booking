@@ -39,6 +39,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+cors_origins = [
+    "https://hotel-booking-ochre-chi.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,  # Hardcode trực tiếp
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],  # Thêm dòng này
+)
+
 # ─── Register all API routers under /api prefix ─────────────────
 app.include_router(auth.router,     prefix="/api")
 app.include_router(users.router,    prefix="/api")
