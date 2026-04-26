@@ -16,6 +16,7 @@ def get_user_by_email_or_full_name(db: Session, identifier: str):
         .filter(
             (func.lower(User.email) == normalized_identifier)
             | (func.lower(User.full_name) == normalized_identifier)
+            | (func.lower(User.username) == normalized_identifier)
         )
         .first()
     )
@@ -27,6 +28,7 @@ def create_user(db: Session, user: UserCreate, role: UserRole = UserRole.USER):
     db_user = User(
         email=user.email,
         full_name=user.full_name,
+        username=user.full_name,
         password_hash=hashed_password,
         role=role,
     )

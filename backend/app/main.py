@@ -1,16 +1,19 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine, Base, ensure_hotel_map_columns
-from app.api import auth, users, hotels, rooms, bookings, admin
+
+import app.models  # noqa: F401
+from app.api import admin, auth, bookings, hotels, rooms, users
 from app.core.config import settings
 from app.core.seed import seed_data
-import app.models  # noqa: F401
+from app.database import Base, engine, ensure_hotel_map_columns, ensure_user_columns
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    ensure_user_columns()
     ensure_hotel_map_columns()
     seed_data()
     yield
@@ -18,29 +21,21 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="Hotel Booking REST API — Clean Architecture",
+    description="Hotel Booking REST API - Clean Architecture",
     version="1.0.0",
     lifespan=lifespan,
 )
 
-# ===== CHỈ MỘT CORS MIDDLEWARE DUY NHẤT =====
-cors_origins = [
-    "https://hotel-booking-ochre-chi.vercel.app",
-    "https://hotel-booking-iukmavsq8-tunablinks-projects.vercel.app",  # Thêm domain mới này
-    "http://localhost:5173",
-    "http://localhost:3000"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=settings.cors_origin_list,
+    allow_origin_regex=settings.CORS_ORIGIN_REGEX or None,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
     expose_headers=["*"],
     max_age=3600,
 )
-# ===== HẾT CORS CONFIG =====
 
 # Routes
 app.include_router(auth.router, prefix="/api")
