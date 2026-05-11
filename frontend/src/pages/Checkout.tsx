@@ -1,9 +1,9 @@
-import { Fragment, useState, type ChangeEvent } from 'react';
+import { Fragment, useState } from 'react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ChevronLeft, CreditCard, Shield, Lock, MapPin, Calendar,
-  Users, Star, Clock, AlertCircle, CheckCircle2, Building2
+  Users, Star, Clock, AlertCircle, CheckCircle2
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -28,10 +28,6 @@ export default function Checkout() {
   const [specialRequests, setSpecialRequests] = useState('');
 
   // Payment state
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvv, setCvv] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'momo'>('momo');
 
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -45,22 +41,6 @@ export default function Checkout() {
 
   const { hotel, selectedRoom, checkIn, checkOut, guests, totalDays, totalPrice } = state;
 
-  // Format card number with spaces
-  const handleCardNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 16);
-    const formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-    setCardNumber(formatted);
-  };
-
-  // Format expiry as MM/YY
-  const handleExpiryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '').slice(0, 4);
-    if (value.length >= 2) {
-      value = value.slice(0, 2) + '/' + value.slice(2);
-    }
-    setExpiry(value);
-  };
-
   const handleSubmit = async () => {
     setError('');
 
@@ -68,8 +48,6 @@ export default function Checkout() {
       setError('Please fill in your name and email.');
       return;
     }
-
-
 
     if (!agreeTerms) {
       setError('You must agree to the terms and conditions.');
@@ -97,7 +75,7 @@ export default function Checkout() {
           return_url: returnUrl,
           notify_url: returnUrl
         });
-        
+
         if (res.data && res.data.payUrl) {
           window.location.href = res.data.payUrl;
           return;
