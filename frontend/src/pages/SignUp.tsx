@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { useGoogleLogin } from '@react-oauth/google';
+import FacebookLogin from '@greatsumini/react-facebook-login';
 
 export default function SignUp() {
   // Sign up form state
@@ -26,6 +28,52 @@ export default function SignUp() {
 
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const googleLogin = useGoogleLogin({
+    scope: 'email profile',
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsSubmitting(true);
+        const res = await api.post('/auth/google', {
+          credential: tokenResponse.access_token
+        });
+        login(res.data.access_token, res.data.user);
+        navigate('/');
+      } catch (err: any) {
+        setErrors(prev => ({
+          ...prev,
+          form: err.response?.data?.detail || 'Google sign up failed. Please try again.'
+        }));
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    onError: (error) => {
+      console.error('Google OAuth error:', error);
+      setErrors(prev => ({
+        ...prev,
+        form: 'Google sign up failed. Please try again.'
+      }));
+    }
+  });
+
+  const handleFacebookSuccess = async (response: any) => {
+    try {
+      setIsSubmitting(true);
+      const res = await api.post('/auth/facebook', {
+        access_token: response.accessToken
+      });
+      login(res.data.access_token, res.data.user);
+      navigate('/');
+    } catch (err: any) {
+      setErrors(prev => ({
+        ...prev,
+        form: err.response?.data?.detail || 'Facebook sign up failed. Please try again.'
+      }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {
@@ -441,21 +489,35 @@ export default function SignUp() {
             <div className="space-y-3">
               <button
                 type="button"
-                className="w-full flex items-center justify-center font-medium h-12 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-[#d4af37]/50 rounded-xl transition-all hover:scale-[1.02]"
+                onClick={() => googleLogin()}
+                disabled={isSubmitting}
+                className="w-full flex items-center justify-center font-medium h-12 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-[#d4af37]/50 rounded-xl transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Chrome className="w-5 h-5 mr-3" />
-                Continue with Google
+                {isSubmitting ? 'Connecting...' : 'Continue with Google'}
               </button>
               
-              <button
-                type="button"
-                className="w-full flex items-center justify-center font-medium h-12 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-[#d4af37]/50 rounded-xl transition-all hover:scale-[1.02]"
-              >
-                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-                Continue with Facebook
-              </button>
+              <FacebookLogin
+                appId="1493273548950452"
+                onSuccess={handleFacebookSuccess}
+                onFail={(error) => {
+                  console.error('Facebook OAuth error:', error);
+                  setErrors(prev => ({ ...prev, form: 'Facebook sign up failed. Please try again.' }));
+                }}
+                render={({ onClick }) => (
+                  <button
+                    type="button"
+                    onClick={onClick}
+                    disabled={isSubmitting}
+                    className="w-full flex items-center justify-center font-medium h-12 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-[#d4af37]/50 rounded-xl transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                    </svg>
+                    {isSubmitting ? 'Connecting...' : 'Continue with Facebook'}
+                  </button>
+                )}
+              />
             </div>
 
             {/* Sign In Link */}

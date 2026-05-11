@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 from app.schemas.room import RoomResponse, PhotoResponse
 
@@ -10,11 +10,11 @@ class HotelBase(BaseModel):
     rating: float = 0.0
     latitude: Optional[float] = Field(None, ge=-90, le=90)
     longitude: Optional[float] = Field(None, ge=-180, le=180)
-    map_embed_url: Optional[HttpUrl] = None
+    map_embed_url: Optional[str] = None
 
 
 class HotelCreate(HotelBase):
-    photos: List[HttpUrl] = Field(default_factory=list)  # List of photo URLs
+    photos: List[str] = Field(default_factory=list)  # List of photo URLs
 
 
 class HotelUpdate(BaseModel):
@@ -24,8 +24,8 @@ class HotelUpdate(BaseModel):
     rating: Optional[float] = None
     latitude: Optional[float] = Field(None, ge=-90, le=90)
     longitude: Optional[float] = Field(None, ge=-180, le=180)
-    map_embed_url: Optional[HttpUrl] = None
-    photos: Optional[List[HttpUrl]] = None  # Replace photos if provided
+    map_embed_url: Optional[str] = None
+    photos: Optional[List[str]] = None  # Replace photos if provided
 
 
 class HotelResponse(HotelBase):
@@ -33,8 +33,7 @@ class HotelResponse(HotelBase):
     rooms: List[RoomResponse] = []
     photos: List[PhotoResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaginatedHotelResponse(BaseModel):

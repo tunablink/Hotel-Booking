@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
 
@@ -21,6 +21,5 @@ class BookingResponse(BookingBase):
     room_name: Optional[str] = None
     hotel_name: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 #định nghĩa cấu trúc dữ liệụ 

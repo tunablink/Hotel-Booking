@@ -4,6 +4,7 @@ from app.schemas.user import UserCreate, UserLogin, UserResponse
 from app.repositories import user_repository
 from app.core.security import verify_password, create_access_token, get_password_hash, verify_token
 from datetime import timedelta
+import httpx
 
 
 def register_user(db: Session, user_data: UserCreate):
@@ -37,6 +38,75 @@ def authenticate_user_by_identifier(db: Session, identifier: str, password: str)
     access_token = create_access_token(data={"sub": user.email})
     return {
         "access_token": access_token,
+        "token_type": "bearer",
+        "user": UserResponse.model_validate(user),
+    }
+
+def authenticate_google_user(db: Session, access_token: str):
+    response = httpx.get(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    if not response.is_success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid Google token",
+        )
+        
+    user_info = response.json()
+    email = user_info.get("email")
+    full_name = user_info.get("name", "Google User")
+    
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Google token did not contain an email",
+        )
+
+    user = user_repository.get_user_by_email(db, email=email)
+    if not user:
+        import secrets
+        random_password = secrets.token_urlsafe(16)
+        user_data = UserCreate(email=email, full_name=full_name, password=random_password)
+        user = user_repository.create_user(db=db, user=user_data)
+        
+    our_access_token = create_access_token(data={"sub": user.email})
+    return {
+        "access_token": our_access_token,
+        "token_type": "bearer",
+        "user": UserResponse.model_validate(user),
+    }
+
+def authenticate_facebook_user(db: Session, access_token: str):
+    response = httpx.get(
+        f"https://graph.facebook.com/v18.0/me?fields=id,name,email&access_token={access_token}"
+    )
+    if not response.is_success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid Facebook token",
+        )
+        
+    user_info = response.json()
+    email = user_info.get("email")
+    full_name = user_info.get("name", "Facebook User")
+    
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Facebook token did not contain an email. Ensure email permission is granted.",
+        )
+
+    user = user_repository.get_user_by_email(db, email=email)
+    if not user:
+        import secrets
+        random_password = secrets.token_urlsafe(16)
+        user_data = UserCreate(email=email, full_name=full_name, password=random_password)
+        user = user_repository.create_user(db=db, user=user_data)
+        
+    our_access_token = create_access_token(data={"sub": user.email})
+    return {
+        "access_token": our_access_token,
         "token_type": "bearer",
         "user": UserResponse.model_validate(user),
     }

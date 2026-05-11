@@ -78,7 +78,7 @@ const RoomCard = ({ room, onSelect, isSelected }: any) => {
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-2xl font-serif text-white">{room.name}</h3>
           <div className="text-right">
-            <span className="text-2xl font-semibold text-[#d4af37]">${room.price_per_night}</span>
+            <span className="text-2xl font-semibold text-[#d4af37]">{room.price_per_night.toLocaleString()} ₫</span>
             <span className="text-white/60 text-sm block">/ night</span>
           </div>
         </div>
@@ -588,12 +588,12 @@ export default function HotelDetail() {
                     <button type="button" onClick={() => setSelectedRoom(null)} className="text-[#d4af37] text-xs underline">Change</button>
                   </div>
                   <div className="flex justify-between items-center text-sm mb-4">
-                    <span className="text-white/60">${selectedRoom.price_per_night} x {totalDays || 1} nights</span>
-                    <span className="text-white">${totalPrice || selectedRoom.price_per_night}</span>
+                    <span className="text-white/60">{selectedRoom.price_per_night.toLocaleString()} ₫ x {totalDays || 1} nights</span>
+                    <span className="text-white">{(totalPrice || selectedRoom.price_per_night).toLocaleString()} ₫</span>
                   </div>
                   <div className="flex justify-between items-center pt-3 border-t border-white/10 font-serif">
                     <span className="text-white font-semibold">Total</span>
-                    <span className="text-2xl text-[#d4af37] font-semibold">${totalPrice || selectedRoom.price_per_night}</span>
+                    <span className="text-2xl text-[#d4af37] font-semibold">{(totalPrice || selectedRoom.price_per_night).toLocaleString()} ₫</span>
                   </div>
                 </div>
               ) : (

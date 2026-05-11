@@ -210,7 +210,7 @@ function HotelCard({ hotel, index }: { hotel: Hotel; index: number }) {
               <div className="text-right">
                 <p className="text-white/50 text-xs mb-0.5">from / night</p>
                 <p className="text-2xl text-[#d4af37] font-semibold">
-                  ${hotel.price.toLocaleString()}
+                  {hotel.price.toLocaleString()} ₫
                 </p>
               </div>
               <button
@@ -278,7 +278,7 @@ function FilterPanel({
         <h3 className="text-white text-sm font-medium mb-3">Price per Night</h3>
         <div className="flex gap-3">
           <div className="flex-1">
-            <label className="text-white/40 text-xs mb-1 block">Min ($)</label>
+            <label className="text-white/40 text-xs mb-1 block">Min (₫)</label>
             <input
               type="number"
               min={0}
@@ -290,7 +290,7 @@ function FilterPanel({
             />
           </div>
           <div className="flex-1">
-            <label className="text-white/40 text-xs mb-1 block">Max ($)</label>
+            <label className="text-white/40 text-xs mb-1 block">Max (₫)</label>
             <input
               type="number"
               min={priceRange[0]}
@@ -306,14 +306,14 @@ function FilterPanel({
           <div
             className="absolute h-full bg-[#d4af37] rounded-full"
             style={{
-              left: `${(priceRange[0] / 2000) * 100}%`,
-              right: `${100 - (priceRange[1] / 2000) * 100}%`,
+              left: `${(priceRange[0] / 20000000) * 100}%`,
+              right: `${100 - (priceRange[1] / 20000000) * 100}%`,
             }}
           />
         </div>
         <div className="flex justify-between text-white/40 text-xs mt-1">
-          <span>$0</span>
-          <span>$2,000+</span>
+          <span>0 ₫</span>
+          <span>20,000,000+ ₫</span>
         </div>
       </div>
 
@@ -419,7 +419,7 @@ export default function SearchResultsPage() {
   const [guests, setGuests] = useState(searchParams.get('guests') || '2');
 
   // Filter state
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000000]);
   const [selectedStars, setSelectedStars] = useState<number[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -455,7 +455,7 @@ export default function SearchResultsPage() {
   // Active filter count for badge
   const activeFilterCount = useMemo(() => {
     let n = 0;
-    if (priceRange[0] > 0 || priceRange[1] < 2000) n++;
+    if (priceRange[0] > 0 || priceRange[1] < 20000000) n++;
     n += selectedStars.length;
     n += selectedAmenities.length;
     n += selectedTypes.length;
@@ -470,7 +470,7 @@ export default function SearchResultsPage() {
   const toggleType = (t: string) =>
     setSelectedTypes((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
   const clearFilters = () => {
-    setPriceRange([0, 2000]);
+    setPriceRange([0, 20000000]);
     setSelectedStars([]);
     setSelectedAmenities([]);
     setSelectedTypes([]);
@@ -512,8 +512,8 @@ export default function SearchResultsPage() {
   // ── Active Filter Chips ─────────────────────────────────────────────────────
   const activeChips: { label: string; onRemove: () => void }[] = useMemo(() => {
     const chips = [];
-    if (priceRange[0] > 0 || priceRange[1] < 2000)
-      chips.push({ label: `$${priceRange[0]}–$${priceRange[1]}`, onRemove: () => setPriceRange([0, 2000]) });
+    if (priceRange[0] > 0 || priceRange[1] < 20000000)
+      chips.push({ label: `${priceRange[0].toLocaleString()} ₫ – ${priceRange[1].toLocaleString()} ₫`, onRemove: () => setPriceRange([0, 20000000]) });
     selectedStars.forEach((s) =>
       chips.push({ label: `${s} Stars`, onRemove: () => toggleStar(s) }));
     selectedAmenities.forEach((a) => {

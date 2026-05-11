@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.user import UserCreate, UserLogin, Token, UserResponse, ForgotPasswordRequest, ResetPasswordRequest
+from app.schemas.user import UserCreate, UserLogin, Token, UserResponse, ForgotPasswordRequest, ResetPasswordRequest, UserGoogleLogin, UserFacebookLogin
 from app.services import auth_service
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -43,6 +43,22 @@ def login_json(login_data: UserLogin, db: Session = Depends(get_db)):
     Use this from your frontend.
     """
     return auth_service.authenticate_user(db, login_data)
+
+
+@router.post("/google", response_model=Token, summary="Login with Google OAuth2")
+def login_google(login_data: UserGoogleLogin, db: Session = Depends(get_db)):
+    """
+    Authenticate with Google credential token.
+    """
+    return auth_service.authenticate_google_user(db, login_data.credential)
+
+
+@router.post("/facebook", response_model=Token, summary="Login with Facebook OAuth2")
+def login_facebook(login_data: UserFacebookLogin, db: Session = Depends(get_db)):
+    """
+    Authenticate with Facebook access token.
+    """
+    return auth_service.authenticate_facebook_user(db, login_data.access_token)
 
 
 @router.post("/forgot-password", summary="Request a password reset link")

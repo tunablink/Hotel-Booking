@@ -95,7 +95,7 @@ export function RoomCard({
             <div>
               <p className="text-white/60 text-sm mb-1">Price per night</p>
               <p className="text-3xl text-[#d4af37]">
-                ${price.toLocaleString()}
+                {price.toLocaleString()} ₫
               </p>
             </div>
             <Button className="w-full sm:w-auto bg-[#d4af37] text-[#0a0e27] hover:bg-[#c4a037] px-8 py-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-[#d4af37]/30">

@@ -191,7 +191,7 @@ export default function Home() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
                       <div className="absolute top-4 right-4 bg-[#d4af37] text-[#0a0e27] px-3 py-1 rounded-full text-sm font-semibold shadow-md">
-                        From ${hotel.rooms?.[0]?.price_per_night || 450}/night
+                        From {hotel.rooms?.[0]?.price_per_night?.toLocaleString() || '1,500,000'} ₫/night
                       </div>
                     </div>
                     
@@ -239,7 +239,7 @@ export default function Home() {
                 {
                   title: 'Deluxe Suite',
                   image: 'https://images.unsplash.com/photo-1759223198981-661cadbbff36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-                  price: '899',
+                  price: '22,475,000',
                   size: '65 m²',
                   guests: '2-3 Guests',
                   features: ['King Bed', 'City View', 'Private Balcony']
@@ -247,7 +247,7 @@ export default function Home() {
                 {
                   title: 'Presidential Suite',
                   image: 'https://images.unsplash.com/photo-1729673766571-2409a89a3f64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-                  price: '1,899',
+                  price: '47,475,000',
                   size: '120 m²',
                   guests: '4-6 Guests',
                   features: ['Private Pool', 'Ocean View', 'Butler Service']
@@ -255,7 +255,7 @@ export default function Home() {
                 {
                   title: 'Royal Penthouse',
                   image: 'https://images.unsplash.com/photo-1758448756167-88dc934c58e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-                  price: '3,499',
+                  price: '87,475,000',
                   size: '250 m²',
                   guests: '6-8 Guests',
                   features: ['Rooftop Terrace', 'Panoramic Views', 'Private Chef']
@@ -276,7 +276,7 @@ export default function Home() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
                       <div className="absolute top-4 right-4 bg-[#d4af37] text-[#0a0e27] px-3 py-1 rounded-full text-sm font-semibold">
-                        From ${room.price}/night
+                        From {room.price} ₫/night
                       </div>
                     </div>
                     

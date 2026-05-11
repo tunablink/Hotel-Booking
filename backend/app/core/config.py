@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 DEFAULT_CORS_ORIGINS = ",".join(
     [
         "http://localhost:5173",
+        "https://localhost:5173",
         "http://localhost:3000",
         "https://hotel-booking-ochre-chi.vercel.app",
         "https://hotel-booking-iukmavsq8-tunablinks-projects.vercel.app",
@@ -21,6 +22,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     DATABASE_URL: str = "sqlite:///./hotel.db"
+    GOOGLE_CLIENT_ID: str = "832329158450-bol0jg2jen65mu6rpcrdjarudiki07uc.apps.googleusercontent.com"
 
     # Comma-separated frontend URLs allowed to call the API.
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", DEFAULT_CORS_ORIGINS)

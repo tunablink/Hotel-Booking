@@ -52,15 +52,15 @@ export function BookingSummary() {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-white/60">Room rate (3 nights)</span>
-              <span className="text-white">$1,350</span>
+              <span className="text-white">33,750,000 ₫</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-white/60">Taxes & fees</span>
-              <span className="text-white">$189</span>
+              <span className="text-white">4,725,000 ₫</span>
             </div>
             <div className="flex justify-between text-sm text-green-400">
               <span>Early bird discount</span>
-              <span>-$135</span>
+              <span>-3,375,000 ₫</span>
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@ export function BookingSummary() {
         <div className="border-t border-white/10 pt-4 mb-6">
           <div className="flex justify-between items-center">
             <span className="text-white text-lg">Total</span>
-            <span className="text-[#d4af37] text-3xl font-semibold">$1,404</span>
+            <span className="text-[#d4af37] text-3xl font-semibold">35,100,000 ₫</span>
           </div>
           <p className="text-white/40 text-xs mt-1 text-right">Includes all taxes</p>
         </div>

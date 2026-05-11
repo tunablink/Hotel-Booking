@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from typing import Optional
 
 
@@ -20,8 +20,7 @@ class UserResponse(UserBase):
     id: int
     role: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Token(BaseModel):
@@ -37,3 +36,9 @@ class ForgotPasswordRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
+
+class UserGoogleLogin(BaseModel):
+    credential: str
+
+class UserFacebookLogin(BaseModel):
+    access_token: str

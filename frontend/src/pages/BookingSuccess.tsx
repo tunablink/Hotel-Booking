@@ -42,7 +42,7 @@ export default function BookingSuccess() {
           </div>
           <div className="flex justify-between pt-2">
             <span className="text-muted-foreground text-sm">Total Paid</span>
-            <span className="text-xl font-serif text-gold-500">${totalPrice}</span>
+            <span className="text-xl font-serif text-gold-500">{totalPrice.toLocaleString()} ₫</span>
           </div>
         </div>
         

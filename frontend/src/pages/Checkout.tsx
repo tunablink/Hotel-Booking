@@ -32,7 +32,7 @@ export default function Checkout() {
   const [cardName, setCardName] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvv, setCvv] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'momo'>('momo');
 
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -69,19 +69,43 @@ export default function Checkout() {
       return;
     }
 
-    if (paymentMethod === 'card') {
-      if (!cardNumber || !cardName || !expiry || !cvv) {
-        setError('Please fill in all payment details.');
-        return;
-      }
-      if (cardNumber.replace(/\s/g, '').length < 16) {
-        setError('Please enter a valid card number.');
-        return;
-      }
-    }
+
 
     if (!agreeTerms) {
       setError('You must agree to the terms and conditions.');
+      return;
+    }
+
+    if (paymentMethod === 'momo') {
+      setIsProcessing(true);
+      try {
+        const orderInfo = `Booking room ${selectedRoom.name}`;
+        // Save booking data to localStorage so we can create it after returning from MoMo
+        localStorage.setItem('pendingBooking', JSON.stringify({
+          room_id: selectedRoom.id,
+          check_in_date: checkIn,
+          check_out_date: checkOut,
+          total_price: totalPrice,
+          hotelName: hotel.name,
+          roomName: selectedRoom.name
+        }));
+
+        const returnUrl = `${window.location.origin}/payment-return`;
+        const res = await api.post('/payment/momo', {
+          amount: Math.round(totalPrice + Math.round(totalPrice * 0.05) + Math.round(totalPrice * 0.1)),
+          order_info: orderInfo,
+          return_url: returnUrl,
+          notify_url: returnUrl
+        });
+        
+        if (res.data && res.data.payUrl) {
+          window.location.href = res.data.payUrl;
+          return;
+        }
+      } catch (err: any) {
+        setError(err.response?.data?.detail || 'Momo payment initiation failed.');
+        setIsProcessing(false);
+      }
       return;
     }
 
@@ -247,91 +271,19 @@ export default function Checkout() {
               {/* Payment method tabs */}
               <div className="flex gap-3 mb-6">
                 <button
-                  onClick={() => setPaymentMethod('card')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all duration-200 text-sm font-medium
-                    ${paymentMethod === 'card'
-                      ? 'bg-[#d4af37]/15 border-[#d4af37]/50 text-[#d4af37]'
-                      : 'bg-white/5 border-white/10 text-white/50 hover:border-white/30'}`}
+                  onClick={() => setPaymentMethod('momo')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all duration-200 text-sm font-medium bg-[#a50064]/15 border-[#a50064]/50 text-[#a50064]`}
                 >
-                  <CreditCard className="w-4 h-4" />
-                  Credit / Debit Card
-                </button>
-                <button
-                  onClick={() => setPaymentMethod('paypal')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all duration-200 text-sm font-medium
-                    ${paymentMethod === 'paypal'
-                      ? 'bg-[#d4af37]/15 border-[#d4af37]/50 text-[#d4af37]'
-                      : 'bg-white/5 border-white/10 text-white/50 hover:border-white/30'}`}
-                >
-                  <Building2 className="w-4 h-4" />
-                  PayPal
+                  <div className="w-4 h-4 font-bold text-[10px] leading-4 text-center rounded bg-current text-white flex items-center justify-center">M</div>
+                  MoMo
                 </button>
               </div>
 
-              {paymentMethod === 'card' ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm text-white/60 block mb-1.5 uppercase tracking-wider">Card Number</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={cardNumber}
-                        onChange={handleCardNumberChange}
-                        placeholder="4242 4242 4242 4242"
-                        maxLength={19}
-                        className="w-full bg-white/5 border border-white/15 rounded-xl px-4 pr-14 h-12 text-white outline-none focus:border-[#d4af37] transition-colors placeholder:text-white/25 tracking-wider"
-                      />
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1">
-                        <div className="w-8 h-5 bg-gradient-to-br from-blue-500 to-blue-700 rounded text-[8px] text-white flex items-center justify-center font-bold">VISA</div>
-                        <div className="w-8 h-5 bg-gradient-to-br from-red-500 to-orange-500 rounded text-[6px] text-white flex items-center justify-center font-bold">MC</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm text-white/60 block mb-1.5 uppercase tracking-wider">Cardholder Name</label>
-                    <input
-                      type="text"
-                      value={cardName}
-                      onChange={(e) => setCardName(e.target.value)}
-                      placeholder="JOHN DOE"
-                      className="w-full bg-white/5 border border-white/15 rounded-xl px-4 h-12 text-white outline-none focus:border-[#d4af37] transition-colors placeholder:text-white/25 uppercase tracking-wider"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm text-white/60 block mb-1.5 uppercase tracking-wider">Expiry Date</label>
-                      <input
-                        type="text"
-                        value={expiry}
-                        onChange={handleExpiryChange}
-                        placeholder="MM/YY"
-                        maxLength={5}
-                        className="w-full bg-white/5 border border-white/15 rounded-xl px-4 h-12 text-white outline-none focus:border-[#d4af37] transition-colors placeholder:text-white/25 tracking-wider"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm text-white/60 block mb-1.5 uppercase tracking-wider">CVV</label>
-                      <div className="relative">
-                        <input
-                          type="password"
-                          value={cvv}
-                          onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                          placeholder="•••"
-                          maxLength={4}
-                          className="w-full bg-white/5 border border-white/15 rounded-xl px-4 h-12 text-white outline-none focus:border-[#d4af37] transition-colors placeholder:text-white/25 tracking-wider"
-                        />
-                        <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white/5 border border-white/10 rounded-xl p-8 text-center">
-                  <Building2 className="w-12 h-12 text-[#d4af37] mx-auto mb-3" />
-                  <p className="text-white/80 mb-1 font-medium">PayPal Checkout</p>
-                  <p className="text-white/40 text-sm">You will be redirected to PayPal to complete the payment securely.</p>
-                </div>
-              )}
+              <div className="bg-white/5 border border-[#a50064]/20 rounded-xl p-8 text-center">
+                <div className="w-12 h-12 bg-[#a50064] text-white rounded-xl mx-auto mb-3 flex items-center justify-center font-bold text-xl">M</div>
+                <p className="text-white/80 mb-1 font-medium">MoMo Payment</p>
+                <p className="text-white/40 text-sm">You will be redirected to the MoMo app or website to scan the QR code and securely complete your payment.</p>
+              </div>
 
               {/* Security notice */}
               <div className="flex items-center gap-3 mt-6 p-3 bg-green-500/5 border border-green-500/15 rounded-xl">
@@ -390,7 +342,7 @@ export default function Checkout() {
                 ) : (
                   <>
                     <Lock className="w-5 h-5" />
-                    Confirm & Pay ${grandTotal.toLocaleString()}
+                    Confirm & Pay {grandTotal.toLocaleString()} ₫
                   </>
                 )}
               </button>
@@ -455,22 +407,22 @@ export default function Checkout() {
                   <h4 className="text-white/60 text-xs uppercase tracking-wider font-medium">Price breakdown</h4>
                   <div className="space-y-2.5 text-sm">
                     <div className="flex justify-between text-white/70">
-                      <span>${selectedRoom.price_per_night} × {totalDays} night{totalDays !== 1 ? 's' : ''}</span>
-                      <span className="text-white">${totalPrice.toLocaleString()}</span>
+                      <span>{selectedRoom.price_per_night.toLocaleString()} ₫ × {totalDays} night{totalDays !== 1 ? 's' : ''}</span>
+                      <span className="text-white">{totalPrice.toLocaleString()} ₫</span>
                     </div>
                     <div className="flex justify-between text-white/70">
                       <span>Service fee</span>
-                      <span className="text-white">${serviceFee.toLocaleString()}</span>
+                      <span className="text-white">{serviceFee.toLocaleString()} ₫</span>
                     </div>
                     <div className="flex justify-between text-white/70">
                       <span>Taxes & fees</span>
-                      <span className="text-white">${taxes.toLocaleString()}</span>
+                      <span className="text-white">{taxes.toLocaleString()} ₫</span>
                     </div>
                   </div>
 
                   <div className="border-t border-white/10 pt-3 flex justify-between items-center">
                     <span className="text-white font-semibold font-serif">Total</span>
-                    <span className="text-2xl text-[#d4af37] font-semibold font-serif">${grandTotal.toLocaleString()}</span>
+                    <span className="text-2xl text-[#d4af37] font-semibold font-serif">{grandTotal.toLocaleString()} ₫</span>
                   </div>
                 </div>
 

@@ -12,6 +12,7 @@ import BookingSuccess from './pages/BookingSuccess';
 import Checkout from './pages/Checkout';
 import SearchResults from './pages/SearchResults';
 import ResetPassword from './pages/ResetPassword';
+import PaymentReturn from './pages/PaymentReturn';
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
@@ -106,6 +107,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <BookingSuccess />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/payment-return" 
+            element={
+              <ProtectedRoute>
+                <PaymentReturn />
               </ProtectedRoute>
             } 
           />

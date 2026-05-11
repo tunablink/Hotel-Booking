@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import app.models  # noqa: F401
-from app.api import admin, auth, bookings, hotels, rooms, users
+from app.api import admin, auth, bookings, hotels, rooms, users, payment
 from app.core.config import settings
 from app.core.seed import seed_data
 from app.database import Base, engine, ensure_hotel_map_columns, ensure_user_columns
@@ -44,6 +44,7 @@ app.include_router(hotels.router, prefix="/api")
 app.include_router(rooms.router, prefix="/api")
 app.include_router(bookings.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(payment.router, prefix="/api")
 
 
 @app.get("/api/health", tags=["Health"])

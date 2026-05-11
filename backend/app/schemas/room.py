@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
 
@@ -6,16 +6,14 @@ class AmenityResponse(BaseModel):
     id: int
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PhotoResponse(BaseModel):
     id: int
     url: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RoomBase(BaseModel):
@@ -40,5 +38,4 @@ class RoomResponse(RoomBase):
     amenities: List[AmenityResponse] = []
     photos: List[PhotoResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

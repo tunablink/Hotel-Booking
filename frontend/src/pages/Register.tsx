@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { useGoogleLogin } from '@react-oauth/google';
+import { Chrome } from 'lucide-react';
 
 export default function Register() {
   const [fullName, setFullName] = useState('');
@@ -11,6 +13,28 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth(); // auto-login on register is nice
+
+  const googleLogin = useGoogleLogin({
+    scope: 'email profile',
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsLoading(true);
+        const res = await api.post('/auth/google', {
+          credential: tokenResponse.access_token
+        });
+        login(res.data.access_token, res.data.user);
+        navigate('/');
+      } catch (err: any) {
+        setError(err.response?.data?.detail || 'Google sign up failed');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: (error) => {
+      console.error('Google OAuth error:', error);
+      setError('Google sign up failed. Please try again.');
+    }
+  });
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
@@ -24,7 +48,7 @@ export default function Register() {
       });
       
       // Auto login after success
-      const loginRes = await api.post('/auth/login', { email, password });
+      const loginRes = await api.post('/auth/login/json', { email, password });
       const { access_token } = loginRes.data;
       
       const userRes = await api.get('/users/me', {
@@ -90,6 +114,22 @@ export default function Register() {
             {isLoading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
+
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 h-px bg-border/50" />
+          <span className="text-muted-foreground text-xs uppercase">OR</span>
+          <div className="flex-1 h-px bg-border/50" />
+        </div>
+        
+        <button
+          type="button"
+          onClick={() => googleLogin()}
+          className="w-full flex items-center justify-center font-medium h-10 bg-background border border-border text-foreground hover:bg-muted rounded-md transition-colors"
+        >
+          <Chrome className="w-4 h-4 mr-2" />
+          Continue with Google
+        </button>
+
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already a member? <Link to="/login" className="text-gold-500 hover:text-gold-400">Sign in</Link>
         </p>

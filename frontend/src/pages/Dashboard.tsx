@@ -196,7 +196,7 @@ export default function Dashboard() {
               {
                 title: 'Deluxe Suite',
                 image: 'https://images.unsplash.com/photo-1759223198981-661cadbbff36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBob3RlbCUyMHN1aXRlJTIwYmVkcm9vbXxlbnwxfHx8fDE3NzI0NDEzMjN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-                price: '899',
+                price: '22,475,000',
                 size: '65 m²',
                 guests: '2-3 Guests',
                 features: ['King Bed', 'City View', 'Private Balcony']
@@ -204,7 +204,7 @@ export default function Dashboard() {
               {
                 title: 'Presidential Suite',
                 image: 'https://images.unsplash.com/photo-1729673766571-2409a89a3f64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBob3RlbCUyMHBvb2wlMjByZXNvcnR8ZW58MXx8fHwxNzcyNDgyOTYwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-                price: '1,899',
+                price: '47,475,000',
                 size: '120 m²',
                 guests: '4-6 Guests',
                 features: ['Private Pool', 'Ocean View', 'Butler Service']
@@ -212,7 +212,7 @@ export default function Dashboard() {
               {
                 title: 'Royal Penthouse',
                 image: 'https://images.unsplash.com/photo-1758448756167-88dc934c58e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBob3RlbCUyMHJvb2Z0b3AlMjBza3lsaW5lfGVufDF8fHx8MTc3MjUyNzMyN3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-                price: '3,499',
+                price: '87,475,000',
                 size: '250 m²',
                 guests: '6-8 Guests',
                 features: ['Rooftop Terrace', 'Panoramic Views', 'Private Chef']
@@ -233,7 +233,7 @@ export default function Dashboard() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute top-4 right-4 bg-[#d4af37] text-[#0a0e27] px-3 py-1 rounded-full text-sm font-semibold">
-                      From ${room.price}/night
+                      From {room.price} ₫/night
                     </div>
                   </div>
                   

@@ -88,7 +88,7 @@ export default function CheckoutModal({ room, onClose }: CheckoutModalProps) {
         
         <div className="p-6">
           <h2 className="text-2xl font-serif text-gold-500 mb-2">Reserve Room</h2>
-          <p className="text-muted-foreground text-sm mb-6">{room.name} — ${room.price_per_night} / night</p>
+          <p className="text-muted-foreground text-sm mb-6">{room.name} — {room.price_per_night.toLocaleString()} ₫ / night</p>
           
           {error && <div className="bg-destructive/10 text-destructive text-sm p-3 rounded mb-4">{error}</div>}
           
@@ -118,7 +118,7 @@ export default function CheckoutModal({ room, onClose }: CheckoutModalProps) {
             
             <div className="py-2 border-t border-border mt-4 flex justify-between items-center">
               <span className="text-muted-foreground">Total Price</span>
-              <span className="text-xl font-medium text-gold-400">${calculateTotalPrice()}</span>
+              <span className="text-xl font-medium text-gold-400">{Number(calculateTotalPrice()).toLocaleString()} ₫</span>
             </div>
             
             <button 
